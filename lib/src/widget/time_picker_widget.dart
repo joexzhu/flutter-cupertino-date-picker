@@ -23,6 +23,7 @@ class TimePickerWidget extends StatefulWidget {
     this.locale: DATETIME_PICKER_LOCALE_DEFAULT,
     this.pickerTheme: DateTimePickerTheme.Default,
     this.minuteDivider = 1,
+    this.secondDivider = 1,
     this.onCancel,
     this.onChange,
     this.onConfirm,
@@ -38,20 +39,22 @@ class TimePickerWidget extends StatefulWidget {
   final DateTimePickerTheme pickerTheme;
   final DateVoidCallback onCancel;
   final DateValueCallback onChange, onConfirm;
-  final int minuteDivider;
+  final int minuteDivider, secondDivider;
 
   @override
   State<StatefulWidget> createState() => _TimePickerWidgetState(
       this.minDateTime,
       this.maxDateTime,
       this.initDateTime,
-      this.minuteDivider);
+      this.minuteDivider,
+      this.secondDivider,
+  );
 }
 
 class _TimePickerWidgetState extends State<TimePickerWidget> {
   DateTime _minTime, _maxTime;
   int _currHour, _currMinute, _currSecond;
-  int _minuteDivider;
+  int _minuteDivider, _secondDivider;
   List<int> _hourRange, _minuteRange, _secondRange;
   FixedExtentScrollController _hourScrollCtrl,
       _minuteScrollCtrl,
@@ -63,7 +66,7 @@ class _TimePickerWidgetState extends State<TimePickerWidget> {
   bool _isChangeTimeRange = false;
 
   _TimePickerWidgetState(DateTime minTime, DateTime maxTime, DateTime initTime,
-      int minuteDivider) {
+      int minuteDivider, int secondDivider) {
     if (minTime == null) {
       minTime = DateTime.parse(DATE_PICKER_MIN_DATETIME);
     }
@@ -81,6 +84,7 @@ class _TimePickerWidgetState extends State<TimePickerWidget> {
     this._currSecond = initTime.second;
 
     this._minuteDivider = minuteDivider;
+    this._secondDivider = secondDivider;
 
     // limit the range of hour
     this._hourRange = _calcHourRange();
@@ -102,7 +106,7 @@ class _TimePickerWidgetState extends State<TimePickerWidget> {
     _minuteScrollCtrl = FixedExtentScrollController(
         initialItem: (_currMinute - _minuteRange.first) ~/ _minuteDivider);
     _secondScrollCtrl = FixedExtentScrollController(
-        initialItem: _currSecond - _secondRange.first);
+        initialItem: (_currSecond - _secondRange.first) ~/ _secondDivider);
 
     _scrollCtrlMap = {
       'H': _hourScrollCtrl,
@@ -201,6 +205,7 @@ class _TimePickerWidgetState extends State<TimePickerWidget> {
         valueRange: valueRange,
         format: format,
         minuteDivider: widget.minuteDivider,
+        secondDivider: widget.secondDivider,
         valueChanged: (value) {
           if (format.contains('H')) {
             _changeHourSelection(value);
@@ -223,6 +228,7 @@ class _TimePickerWidgetState extends State<TimePickerWidget> {
     @required String format,
     @required ValueChanged<int> valueChanged,
     int minuteDivider,
+    int secondDivider
   }) {
     return Expanded(
       flex: 1,
@@ -236,13 +242,17 @@ class _TimePickerWidgetState extends State<TimePickerWidget> {
           itemExtent: widget.pickerTheme.itemHeight,
           onSelectedItemChanged: valueChanged,
           childCount: format.contains('m')
-              ? _calculateMinuteChildCount(valueRange, minuteDivider)
+              ? _calculateChildCount(valueRange, minuteDivider)
+              : format.contains('s') ?
+              _calculateChildCount(valueRange, secondDivider)
               : valueRange.last - valueRange.first + 1,
           itemBuilder: (context, index) {
             int value = valueRange.first + index;
 
             if (format.contains('m')) {
               value = minuteDivider * index + valueRange.first;
+            } else if (format.contains('s')) {
+              value = secondDivider * index + valueRange.first;
             }
 
             return _renderDatePickerItemComponent(value, format);
@@ -252,12 +262,11 @@ class _TimePickerWidgetState extends State<TimePickerWidget> {
     );
   }
 
-  _calculateMinuteChildCount(List<int> valueRange, int divider) {
+  _calculateChildCount(List<int> valueRange, int divider) {
     if (divider == 0) {
       print("Cant devide by 0");
-      return (valueRange.last - valueRange.first + 1);
+      divider = 1;
     }
-
     return (valueRange.last - valueRange.first + 1) ~/ divider;
   }
 
@@ -295,7 +304,7 @@ class _TimePickerWidgetState extends State<TimePickerWidget> {
 
   /// change the selection of second picker
   void _changeSecondSelection(int index) {
-    int value = _secondRange.first + index;
+    int value = index * _secondDivider + _secondRange.first ;
     if (_currSecond != value) {
       _currSecond = value;
       _onSelectedChange();
@@ -346,7 +355,7 @@ class _TimePickerWidgetState extends State<TimePickerWidget> {
     if (secondRangeChanged) {
       // CupertinoPicker refresh data not working (https://github.com/flutter/flutter/issues/22999)
       int currSecond = _currSecond;
-      _secondScrollCtrl.jumpToItem(secondRange.last - secondRange.first);
+      _secondScrollCtrl.jumpToItem((secondRange.last - secondRange.first) ~/ _secondDivider);
       if (currSecond < secondRange.last) {
         _secondScrollCtrl.jumpToItem(currSecond - secondRange.first);
       }

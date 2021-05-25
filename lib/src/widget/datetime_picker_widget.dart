@@ -50,10 +50,10 @@ class DateTimePickerWidget extends StatefulWidget {
 }
 
 class _DateTimePickerWidgetState extends State<DateTimePickerWidget> {
-  DateTime _minTime, _maxTime;
-  int? _currDay, _currHour, _currMinute, _currSecond;
-  int? _minuteDivider;
-  List<int>? _dayRange, _hourRange, _minuteRange, _secondRange;
+  late DateTime _minTime, _maxTime;
+  late int _currDay, _currHour, _currMinute, _currSecond;
+  late int? _minuteDivider;
+  late List<int> _dayRange, _hourRange, _minuteRange, _secondRange;
   FixedExtentScrollController? _dayScrollCtrl,
       _hourScrollCtrl,
       _minuteScrollCtrl,
@@ -211,7 +211,7 @@ class _DateTimePickerWidgetState extends State<DateTimePickerWidget> {
 
   /// render the picker widget of year、month and day
   Widget _renderDatePickerWidget() {
-    List<Widget> pickers = List<Widget>();
+    List<Widget> pickers = <Widget>[];
     List<String> formatArr = DateTimeFormatter.splitDateFormat(
         widget.dateFormat,
         mode: DateTimePickerMode.datetime);

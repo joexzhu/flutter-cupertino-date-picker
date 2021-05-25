@@ -17,7 +17,6 @@ class DateTimeFormatter {
       case DateTimePickerMode.datetime:
         return DATETIME_PICKER_DATETIME_FORMAT;
     }
-    return '';
   }
 
   /// Check if the date format is for day(contain y、M、d、E) or not.
@@ -72,7 +71,7 @@ class DateTimeFormatter {
   /// Format datetime string
   static String formatDateTime(
       int value, String format, DateTimePickerLocale? locale) {
-    if (format == null || format.length == 0) {
+    if (format.length == 0) {
       return value.toString();
     }
 
@@ -113,7 +112,7 @@ class DateTimeFormatter {
   /// Format day display
   static String formatDate(
       DateTime dateTime, String format, DateTimePickerLocale? locale) {
-    if (format == null || format.length == 0) {
+    if (format.length == 0) {
       return dateTime.toString();
     }
 

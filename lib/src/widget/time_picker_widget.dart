@@ -52,7 +52,7 @@ class TimePickerWidget extends StatefulWidget {
 }
 
 class _TimePickerWidgetState extends State<TimePickerWidget> {
-  DateTime _minTime, _maxTime;
+  late DateTime _minTime, _maxTime;
   int? _currHour, _currMinute, _currSecond;
   int? _minuteDivider, _secondDivider;
   List<int>? _hourRange, _minuteRange, _secondRange;
@@ -194,7 +194,7 @@ class _TimePickerWidgetState extends State<TimePickerWidget> {
 
   /// render the picker widget of year、month and day
   Widget _renderDatePickerWidget() {
-    List<Widget> pickers = List<Widget>();
+    List<Widget> pickers = <Widget>[];
     List<String> formatArr =
         DateTimeFormatter.splitDateFormat(widget.dateFormat);
     formatArr.forEach((format) {
@@ -233,7 +233,7 @@ class _TimePickerWidgetState extends State<TimePickerWidget> {
     return Expanded(
       flex: 1,
       child: Container(
-        padding: EdgeInsets.all(8.0),
+        padding: EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
         height: widget.pickerTheme!.pickerHeight,
         decoration: BoxDecoration(color: widget.pickerTheme!.backgroundColor),
         child: CupertinoPicker.builder(
@@ -277,7 +277,7 @@ class _TimePickerWidgetState extends State<TimePickerWidget> {
       child: Text(
         DateTimeFormatter.formatDateTime(value, format, widget.locale),
         style:
-            widget.pickerTheme!.itemTextStyle ?? DATETIME_PICKER_ITEM_TEXT_STYLE,
+            widget.pickerTheme!.itemTextStyle,
       ),
     );
   }
